@@ -2,6 +2,7 @@ package com.example.automaticirrigationsystem.service;
 
 import com.example.automaticirrigationsystem.aop.logging.Loggable;
 import com.example.automaticirrigationsystem.domain.Plot;
+import com.example.automaticirrigationsystem.dto.PlotConfigDTO;
 import com.example.automaticirrigationsystem.dto.PlotDTO;
 import com.example.automaticirrigationsystem.repository.PlotRepository;
 import com.example.automaticirrigationsystem.service.mapper.PlotMapper;
@@ -30,12 +31,41 @@ public class PlotService {
   /**
    * Save a plot.
    *
+   * @param plotConfigDTO the plot to save.
+   * @return the persisted plot.
+   */
+  @Loggable
+  public Optional<PlotDTO> configurePlot(PlotConfigDTO plotConfigDTO, long id) {
+    log.debug("Request to save Plot : {}", plotConfigDTO);
+    plotConfigDTO.setId(id);
+
+    Optional<Plot> existPlot = plotRepository.findById(id);
+//    if (!existPlot.isPresent()) {
+//      throw new ResourceNotFoundException("No content available for the given plot ID");
+//    }
+
+    return existPlot.map(existingPlot -> {
+          existingPlot.setCropType(plotConfigDTO.getCropType());
+          existingPlot.setWaterAmount(plotConfigDTO.getWaterAmount());
+
+          // TODO forloop slots size -> creating list to be binded to the plot for saving
+          return existingPlot;
+        })
+        .map(plotRepository::save)
+        .map(plotMapper::toDto);
+
+  }
+
+  /**
+   * Save a plot.
+   *
    * @param plotDTO the plot to save.
    * @return the persisted plot.
    */
   @Loggable
   public PlotDTO save(PlotDTO plotDTO) {
     log.debug("Request to save Plot : {}", plotDTO);
+    plotDTO.setId(null);
     Plot plot = plotMapper.toEntity(plotDTO);
     plot = plotRepository.save(plot);
     return plotMapper.toDto(plot);

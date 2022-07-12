@@ -2,12 +2,13 @@ package com.example.automaticirrigationsystem.web.rest;
 
 
 import com.example.automaticirrigationsystem.aop.logging.Loggable;
+import com.example.automaticirrigationsystem.dto.PlotConfigDTO;
 import com.example.automaticirrigationsystem.dto.PlotDTO;
 import com.example.automaticirrigationsystem.exception.BadRequestException;
-import com.example.automaticirrigationsystem.exception.ResourceDoesntExistException;
+import com.example.automaticirrigationsystem.exception.ResourceNotFoundException;
 import com.example.automaticirrigationsystem.repository.PlotRepository;
 import com.example.automaticirrigationsystem.service.PlotService;
-import com.example.automaticirrigationsystem.web.rest.util.PaginationUtil;
+import com.example.automaticirrigationsystem.util.PaginationUtil;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -51,14 +52,16 @@ public class PlotResourceController {
    * plotDTO, or with status {@code 400 (Bad Request)} if the plot has already an ID.
    * @throws URISyntaxException if the Location URI syntax is incorrect.
    */
+
+  /**
+   * expected: plotCode, plotLength, plotWidth
+   */
   @PostMapping("/plots")
   @Loggable
   public ResponseEntity<PlotDTO> createPlot(@Valid @RequestBody PlotDTO plotDTO)
       throws URISyntaxException {
     log.debug("REST request to save Plot : {}", plotDTO);
-    if (plotDTO.getId() != null) {
-      throw new BadRequestException("A new plot cannot already have an ID");
-    }
+
     PlotDTO result = plotService.save(plotDTO);
     return ResponseEntity
         .created(new URI("/api/plots/" + result.getId()))
@@ -73,6 +76,36 @@ public class PlotResourceController {
    * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated
    * plotDTO, or with status {@code 400 (Bad Request)} if the plotDTO is not valid, or with status
    * {@code 500 (Internal Server Error)} if the plotDTO couldn't be updated.
+   */
+  /**
+   * configure: crop, time slots, water amount
+   */
+  @PutMapping("/plots/config/{id}")
+  @Loggable
+  public ResponseEntity<PlotDTO> configPlot(
+      @PathVariable final Long id,
+      @Valid @RequestBody PlotConfigDTO plotConfigDTO) {
+    log.debug("REST request to update Plot : {}, {}", id, plotConfigDTO);
+
+    Optional<PlotDTO> result = plotService.configurePlot(plotConfigDTO, id);
+
+    return result.map(plot -> ResponseEntity.ok().body(plot))
+        .orElseThrow(() -> {
+          throw new ResourceNotFoundException("plot doesn't exist");
+        });
+  }
+
+  /**
+   * {@code PUT  /plots/:id} : Updates an existing plot.
+   *
+   * @param id      the id of the plotDTO to save.
+   * @param plotDTO the plotDTO to update.
+   * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated
+   * plotDTO, or with status {@code 400 (Bad Request)} if the plotDTO is not valid, or with status
+   * {@code 500 (Internal Server Error)} if the plotDTO couldn't be updated.
+   */
+  /**
+   * configure: crop, time slots, water amount
    */
   @PutMapping("/plots/{id}")
   @Loggable
@@ -127,7 +160,7 @@ public class PlotResourceController {
     Optional<PlotDTO> plotDTO = plotService.findOne(id);
     return plotDTO.map(plot -> ResponseEntity.ok().body(plot))
         .orElseThrow(() -> {
-          throw new ResourceDoesntExistException("plot doesn't exist");
+          throw new ResourceNotFoundException("plot doesn't exist");
         });
   }
 

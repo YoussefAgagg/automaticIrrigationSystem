@@ -1,4 +1,4 @@
-package com.example.automaticirrigationsystem.web.rest.util;
+package com.example.automaticirrigationsystem.util;
 
 import java.text.MessageFormat;
 import org.springframework.data.domain.Page;

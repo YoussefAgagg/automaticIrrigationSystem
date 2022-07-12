@@ -20,8 +20,10 @@ public class PlotDTO implements Serializable {
   @NotNull
   private String plotCode;
 
+  @NotNull
   private Double plotLength;
 
+  @NotNull
   private Double plotWidth;
 
   private Boolean isIrrigated;

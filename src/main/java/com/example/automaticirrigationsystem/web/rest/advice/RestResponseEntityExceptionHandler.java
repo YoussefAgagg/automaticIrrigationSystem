@@ -1,7 +1,7 @@
 package com.example.automaticirrigationsystem.web.rest.advice;
 
 import com.example.automaticirrigationsystem.exception.BadRequestException;
-import com.example.automaticirrigationsystem.exception.ResourceDoesntExistException;
+import com.example.automaticirrigationsystem.exception.ResourceNotFoundException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +23,7 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
         request);
   }
 
-  @ExceptionHandler(ResourceDoesntExistException.class)
+  @ExceptionHandler(ResourceNotFoundException.class)
   public ResponseEntity<Object> resourceDoesntExistExceptionHandler(Exception ex) {
 
     return new ResponseEntity<Object>(ex.getMessage(), HttpStatus.NOT_FOUND);

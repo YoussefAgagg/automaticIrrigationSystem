@@ -4,10 +4,10 @@ package com.example.automaticirrigationsystem.web.rest;
 import com.example.automaticirrigationsystem.aop.logging.Loggable;
 import com.example.automaticirrigationsystem.dto.SensorDTO;
 import com.example.automaticirrigationsystem.exception.BadRequestException;
-import com.example.automaticirrigationsystem.exception.ResourceDoesntExistException;
+import com.example.automaticirrigationsystem.exception.ResourceNotFoundException;
 import com.example.automaticirrigationsystem.repository.SensorRepository;
 import com.example.automaticirrigationsystem.service.SensorService;
-import com.example.automaticirrigationsystem.web.rest.util.PaginationUtil;
+import com.example.automaticirrigationsystem.util.PaginationUtil;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -122,8 +122,10 @@ public class SensorResourceController {
     public ResponseEntity<SensorDTO> getSensor(@PathVariable Long id) {
         log.debug("REST request to get Sensor : {}", id);
         Optional<SensorDTO> sensorDTO = sensorService.findOne(id);
-        return sensorDTO.map(sensor->ResponseEntity.ok().body(sensor))
-                .orElseThrow(()->{throw new ResourceDoesntExistException("sensor doesn't exist");});
+        return sensorDTO.map(sensor -> ResponseEntity.ok().body(sensor))
+            .orElseThrow(() -> {
+                throw new ResourceNotFoundException("sensor doesn't exist");
+            });
     }
 
     /**
