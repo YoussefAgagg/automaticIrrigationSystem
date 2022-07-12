@@ -3,9 +3,6 @@ package com.example.automaticirrigationsystem.domain;
 import com.example.automaticirrigationsystem.domain.enumeration.CropType;
 import lombok.*;
 import org.hibernate.Hibernate;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -58,7 +55,6 @@ public class Plot implements Serializable {
     private Sensor sensor;
 
     @OneToMany(mappedBy = "plot")
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @ToString.Exclude
     private Set<Slot> slots = new HashSet<>();
 
