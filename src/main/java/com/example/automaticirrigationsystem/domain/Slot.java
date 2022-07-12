@@ -2,53 +2,47 @@ package com.example.automaticirrigationsystem.domain;
 
 
 import com.example.automaticirrigationsystem.domain.enumeration.Status;
-import lombok.*;
-import org.hibernate.Hibernate;
-
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.util.Objects;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
- * A Slot.
+ * Timing slot represents the slot to be used to irrigate the plot, based on the crop type: rice, 1
+ * slot every 1m2/length. beans, 1 slot every 2m2/length
  */
 @Entity
 @Table(name = "slot")
 @Getter
 @Setter
 @ToString
-@RequiredArgsConstructor
+@NoArgsConstructor
 public class Slot implements Serializable {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
-    @SequenceGenerator(name = "sequenceGenerator")
-    @Column(name = "id")
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
+  @SequenceGenerator(name = "sequenceGenerator")
+  @Column(name = "id")
+  private Long id;
 
-    @NotNull
-    @Column(name = "code", nullable = false, unique = true)
-    private String code;
+  @Enumerated(EnumType.STRING)
+  @Column(name = "status")
+  private Status status;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status")
-    private Status status;
+  @ManyToOne
+  @JoinColumn(name = "plot_id")
+  private Plot plot;
 
-    @ManyToOne
-    @JoinColumn(name = "plot_id")
-    private Plot plot;
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        Slot slot = (Slot) o;
-        return id != null && Objects.equals(id, slot.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
-    }
 }

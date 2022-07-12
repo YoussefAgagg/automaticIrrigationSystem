@@ -14,15 +14,16 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
  */
 
 public interface EntityMapper<D, E> {
-    E toEntity(D dto);
 
-    D toDto(E entity);
+  E toEntity(D dto);
 
-    List<E> toEntity(List<D> dtoList);
+  D toDto(E entity);
 
-    List<D> toDto(List<E> entityList);
+  List<E> toEntity(List<D> dtoList);
 
-    @Named("partialUpdate")
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void partialUpdate(@MappingTarget E entity, D dto);
+  List<D> toDto(List<E> entityList);
+
+  @Named("partialUpdate")
+  @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+  void partialUpdate(@MappingTarget E entity, D dto);
 }

@@ -8,8 +8,9 @@ import java.lang.annotation.Target;
 /**
  * A custom annotation as a pointcut, thus wherever this annotation appears on a method, logging
  * aspect will run around that method execution and log the entry-exit of the method.
- *
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Loggable {}
+public @interface Loggable {
+
+}

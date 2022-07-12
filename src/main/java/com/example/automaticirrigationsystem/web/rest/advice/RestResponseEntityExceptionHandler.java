@@ -5,7 +5,6 @@ import com.example.automaticirrigationsystem.exception.ResourceDoesntExistExcept
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
@@ -13,7 +12,6 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 /**
  * A global exception handler for REST API.
- *
  */
 @ControllerAdvice
 public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
@@ -21,7 +19,8 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
   @ExceptionHandler(value = {IllegalArgumentException.class, IllegalStateException.class})
   protected ResponseEntity<Object> handleConflict(RuntimeException ex, WebRequest request) {
 
-    return handleExceptionInternal(ex, ex.getMessage(), new HttpHeaders(), HttpStatus.CONFLICT,request);
+    return handleExceptionInternal(ex, ex.getMessage(), new HttpHeaders(), HttpStatus.CONFLICT,
+        request);
   }
 
   @ExceptionHandler(ResourceDoesntExistException.class)
@@ -35,10 +34,12 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
 
     return new ResponseEntity<Object>(ex.getMessage(), HttpStatus.BAD_REQUEST);
   }
+
   @ExceptionHandler(Exception.class)
   public ResponseEntity<Object> defaultExceptionHandler(final Exception ex, WebRequest request) {
 
-    return handleExceptionInternal(ex, ex.getMessage(), new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
+    return handleExceptionInternal(ex, ex.getMessage(), new HttpHeaders(),
+        HttpStatus.INTERNAL_SERVER_ERROR, request);
 
   }
 

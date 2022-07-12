@@ -1,73 +1,102 @@
 package com.example.automaticirrigationsystem.domain;
 
 import com.example.automaticirrigationsystem.domain.enumeration.CropType;
-import lombok.*;
-import org.hibernate.Hibernate;
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
-import java.util.Set;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import org.hibernate.Hibernate;
 
 /**
- * A Plot.
+ * A Plot class represent a unit of land or cultivated area to be irrigated
  */
 @Entity
 @Table(name = "plot")
-@Getter
 @Setter
+@Getter
 @ToString
 @RequiredArgsConstructor
 public class Plot implements Serializable {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
-    @SequenceGenerator(name = "sequenceGenerator")
-    @Column(name = "id")
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
+  @SequenceGenerator(name = "sequenceGenerator")
+  @Column(name = "id")
+  private Long id;
 
-    @NotNull
-    @Column(name = "code", nullable = false, unique = true)
-    private String code;
+  @NotNull
+  @Column(name = "code", nullable = false, unique = true)
+  private String plotCode;
 
-    @Column(name = "length")
-    private Double length;
+  @NotNull
+  @Column(name = "length")
+  private Double plotLength;
 
-    @Column(name = "width")
-    private Double width;
+  @NotNull
+  @Column(name = "width")
+  private Double plotWidth;
 
-    @Column(name = "is_irrigated")
-    private Boolean isIrrigated;
+  @Column(name = "is_irrigated")
+  private Boolean isIrrigated;
 
-    @Column(name = "tries_count")
-    private Integer triesCount;
+  @Column(name = "tries_count")
+  private Integer startTriesCount;
 
-    @Column(name = "has_alert")
-    private Boolean hasAlert;
+  @Column(name = "has_alert")
+  private Boolean hasAlert;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "crop_type")
-    private CropType cropType;
+  @Column(name = "start_irrigation_time")
+  private String startIrrigationTime;
 
-    @OneToOne
-    @JoinColumn(unique = true, name = "sensor_id")
-    private Sensor sensor;
+  @Column(name = "last_irrigation_time")
+  private String lastIrrigationTime;
 
-    @OneToMany(mappedBy = "plot")
-    @ToString.Exclude
-    private Set<Slot> slots = new HashSet<>();
+  @Column(name = "water_amount")
+  private int waterAmount;
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        Plot plot = (Plot) o;
-        return id != null && Objects.equals(id, plot.id);
+  @Enumerated(EnumType.STRING)
+  @Column(name = "crop_type")
+  private CropType cropType;
+
+  @OneToOne
+  @JoinColumn(unique = true, name = "sensor_id")
+  private Sensor plotSensor;
+
+  @OneToMany(mappedBy = "plot")
+  @ToString.Exclude
+  private List<Slot> plotTimerSlots = new ArrayList<Slot>();
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
     }
-
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
+    if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) {
+      return false;
     }
+    Plot plot = (Plot) o;
+    return id != null && Objects.equals(id, plot.id);
+  }
+
+  @Override
+  public int hashCode() {
+    return getClass().hashCode();
+  }
 }

@@ -1,10 +1,9 @@
-package com.example.automaticirrigationsystem.service.dto;
+package com.example.automaticirrigationsystem.dto;
 
 import com.example.automaticirrigationsystem.domain.enumeration.Status;
-import lombok.Data;
-
 import java.io.Serializable;
-import javax.validation.constraints.*;
+import javax.validation.constraints.NotNull;
+import lombok.Data;
 
 /**
  * A DTO for the {@link com.example.automaticirrigationsystem.domain.Slot} entity.
@@ -12,13 +11,11 @@ import javax.validation.constraints.*;
 @Data
 public class SlotDTO implements Serializable {
 
-    private Long id;
+  private Long id;
 
-    @NotNull
-    private String code;
+  @NotNull
+  private String code;
 
-    private Status status;
-
-    private PlotDTO plot;
+  private Status status;
 
 }
