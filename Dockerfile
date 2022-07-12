@@ -1,4 +1,4 @@
-FROM openjdk:11 as build
+FROM  amazoncorretto:11-alpine-jdk as build
 WORKDIR /workspace/app
 
 COPY mvnw .
@@ -7,7 +7,7 @@ COPY pom.xml .
 COPY src src
 RUN ./mvnw install -DskipTests
 
-FROM openjdk:11
+FROM  amazoncorretto:11-alpine-jdk
 ARG JAR_FILE=workspace/app/target/*.jar
 COPY --from=build ${JAR_FILE} app.jar
 EXPOSE 8080
