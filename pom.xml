@@ -10,7 +10,6 @@
     <groupId>com.ais</groupId>
     <artifactId>automaticirrigationsystem</artifactId>
     <version>1.0.0</version>
-    <packaging>pom</packaging>
 
     <name>AutomaticIrrigationSystem</name>
     <description>Automatic Irrigation System</description>
