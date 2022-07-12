@@ -2,20 +2,46 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
+    <!-- ====================================================================== -->
+    <!-- = P R O J E C T  ===================================================== -->
+    <!-- ====================================================================== -->
+
+    <groupId>com.ais</groupId>
+    <artifactId>automaticirrigationsystem</artifactId>
+    <version>1.0.0</version>
+    <packaging>pom</packaging>
+
+    <name>AutomaticIrrigationSystem</name>
+    <description>Automatic Irrigation System</description>
+    <inceptionYear>2022</inceptionYear>
+
+
+    <!-- ====================================================================== -->
+    <!-- = P A R E N T ======================================================== -->
+    <!-- ====================================================================== -->
+
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>2.7.1</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.example</groupId>
-    <artifactId>automaticIrrigationSystem</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <name>automaticIrrigationSystem</name>
-    <description>automaticIrrigationSystem</description>
+
+    <!-- ====================================================================== -->
+    <!-- = P R O P E R T I E S ================================================ -->
+    <!-- ====================================================================== -->
+
     <properties>
         <java.version>11</java.version>
+        <maven.version>[3.6,)</maven.version>
+        <build.sourceEncoding>UTF-8</build.sourceEncoding>
     </properties>
+
+    <!-- ==================================================================== -->
+    <!-- = D E P E N D E N C I E S - V E R S I O N ========================== -->
+    <!-- ==================================================================== -->
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
