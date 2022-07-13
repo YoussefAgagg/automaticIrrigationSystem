@@ -124,7 +124,7 @@ public class PlotResourceController {
       throw new BadRequestException("Plot not found id not found");
     }
 
-    PlotDTO result = plotService.save(plotDTO);
+    PlotDTO result = plotService.update(plotDTO);
     return ResponseEntity
         .ok().body(result);
   }

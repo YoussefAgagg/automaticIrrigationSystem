@@ -75,6 +75,14 @@ public class PlotService {
     return plotMapper.toDto(plot);
   }
 
+  @Loggable
+  public PlotDTO update(PlotDTO plotDTO) {
+    log.debug("Request to update Plot : {}", plotDTO);
+    Plot plot = plotMapper.toEntity(plotDTO);
+    plot = plotRepository.save(plot);
+    return plotMapper.toDto(plot);
+  }
+
   /**
    * Partially update a plot.
    *
@@ -132,4 +140,6 @@ public class PlotService {
     log.debug("Request to delete Plot : {}", id);
     plotRepository.deleteById(id);
   }
+
+
 }
