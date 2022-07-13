@@ -3,6 +3,7 @@ package com.example.automaticirrigationsystem.dto;
 import com.example.automaticirrigationsystem.domain.Sensor;
 import com.example.automaticirrigationsystem.domain.Slot;
 import com.example.automaticirrigationsystem.domain.enumeration.CropType;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,8 +42,8 @@ public class PlotDTO implements Serializable {
   private CropType cropType;
 
   private Sensor plotSensor;
-
-  private List<Slot> plotTimerSlots = new ArrayList<Slot>();
+  @JsonIgnoreProperties(value = {"plot"}, allowSetters = true)
+  private List<Slot> plotTimerSlots = new ArrayList<>();
 
 
 }

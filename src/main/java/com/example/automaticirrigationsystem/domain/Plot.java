@@ -1,6 +1,7 @@
 package com.example.automaticirrigationsystem.domain;
 
 import com.example.automaticirrigationsystem.domain.enumeration.CropType;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -81,7 +82,8 @@ public class Plot implements Serializable {
 
   @OneToMany(mappedBy = "plot")
   @ToString.Exclude
-  private List<Slot> plotTimerSlots = new ArrayList<Slot>();
+  @JsonIgnoreProperties(value = {"plot"}, allowSetters = true)
+  private List<Slot> plotTimerSlots = new ArrayList<>();
 
   @Override
   public boolean equals(Object o) {

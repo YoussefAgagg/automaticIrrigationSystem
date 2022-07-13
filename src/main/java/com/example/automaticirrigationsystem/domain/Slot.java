@@ -2,6 +2,7 @@ package com.example.automaticirrigationsystem.domain;
 
 
 import com.example.automaticirrigationsystem.domain.enumeration.Status;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -43,6 +44,7 @@ public class Slot implements Serializable {
 
   @ManyToOne
   @JoinColumn(name = "plot_id")
+  @JsonIgnoreProperties(value = {"plotSensor", "plotTimerSlots"}, allowSetters = true)
   private Plot plot;
 
 }
