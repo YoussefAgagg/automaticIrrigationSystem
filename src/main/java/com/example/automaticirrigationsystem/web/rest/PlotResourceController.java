@@ -4,7 +4,6 @@ package com.example.automaticirrigationsystem.web.rest;
 import com.example.automaticirrigationsystem.aop.logging.Loggable;
 import com.example.automaticirrigationsystem.dto.PlotConfigDTO;
 import com.example.automaticirrigationsystem.dto.PlotDTO;
-import com.example.automaticirrigationsystem.exception.BadRequestException;
 import com.example.automaticirrigationsystem.exception.ResourceNotFoundException;
 import com.example.automaticirrigationsystem.repository.PlotRepository;
 import com.example.automaticirrigationsystem.service.PlotService;
@@ -12,7 +11,6 @@ import com.example.automaticirrigationsystem.util.PaginationUtil;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -78,17 +76,15 @@ public class PlotResourceController {
    * {@code 500 (Internal Server Error)} if the plotDTO couldn't be updated.
    */
   /**
-   * configure: crop, time slots, water amount
+   * configure: crop, time slots count, water amount
    */
   @PutMapping("/plots/config/{id}")
   @Loggable
   public ResponseEntity<PlotDTO> configPlot(
       @PathVariable final Long id,
       @Valid @RequestBody PlotConfigDTO plotConfigDTO) {
-    log.debug("REST request to update Plot : {}, {}", id, plotConfigDTO);
-
+    log.debug("REST request to configure Plot : {}, {}", id, plotConfigDTO);
     Optional<PlotDTO> result = plotService.configurePlot(plotConfigDTO, id);
-
     return result.map(plot -> ResponseEntity.ok().body(plot))
         .orElseThrow(() -> {
           throw new ResourceNotFoundException("plot doesn't exist");
@@ -105,29 +101,21 @@ public class PlotResourceController {
    * {@code 500 (Internal Server Error)} if the plotDTO couldn't be updated.
    */
   /**
-   * configure: crop, time slots, water amount
+   * update: crop, time slots, water amount, plotCode, plotLength, plotWidth, sensor
    */
+
   @PutMapping("/plots/{id}")
   @Loggable
   public ResponseEntity<PlotDTO> updatePlot(
       @PathVariable final Long id,
       @Valid @RequestBody PlotDTO plotDTO) {
     log.debug("REST request to update Plot : {}, {}", id, plotDTO);
-    if (plotDTO.getId() == null) {
-      throw new BadRequestException("Invalid id id null");
-    }
-    if (!Objects.equals(id, plotDTO.getId())) {
-      throw new BadRequestException("Invalid ID id invalid");
-    }
 
-    if (!plotRepository.existsById(id)) {
-      throw new BadRequestException("Plot not found id not found");
-    }
-
+    plotDTO.setId(id);
     Optional<PlotDTO> result = plotService.partialUpdate(plotDTO);
     return result.map(plot -> ResponseEntity.ok().body(plot))
         .orElseThrow(() -> {
-          throw new ResourceNotFoundException("plot doesn't exist");
+          throw new ResourceNotFoundException("Plot doesn't exist");
         });
   }
 
@@ -162,7 +150,7 @@ public class PlotResourceController {
     Optional<PlotDTO> plotDTO = plotService.findOne(id);
     return plotDTO.map(plot -> ResponseEntity.ok().body(plot))
         .orElseThrow(() -> {
-          throw new ResourceNotFoundException("plot doesn't exist");
+          throw new ResourceNotFoundException("Plot doesn't exist");
         });
   }
 

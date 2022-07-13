@@ -8,6 +8,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -42,8 +43,8 @@ public class Slot implements Serializable {
   @Column(name = "status")
   private Status status;
 
-  @ManyToOne
-  @JoinColumn(name = "plot_id")
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name = "plot_id", nullable = false)
   @JsonIgnoreProperties(value = {"plotSensor", "plotTimerSlots"}, allowSetters = true)
   private Plot plot;
 

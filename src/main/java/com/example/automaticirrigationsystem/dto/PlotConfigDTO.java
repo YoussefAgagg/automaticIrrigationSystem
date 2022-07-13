@@ -19,5 +19,5 @@ public class PlotConfigDTO {
   private int waterAmount;
 
   @NotNull
-  private int SlotsCount;
+  private int slotsCount;
 }

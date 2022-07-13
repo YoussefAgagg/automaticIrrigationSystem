@@ -4,6 +4,8 @@ import com.example.automaticirrigationsystem.domain.Sensor;
 import com.example.automaticirrigationsystem.domain.Slot;
 import com.example.automaticirrigationsystem.domain.enumeration.CropType;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,14 +29,19 @@ public class PlotDTO implements Serializable {
   @NotNull
   private Double plotWidth;
 
+  @JsonProperty(access = Access.READ_ONLY)
   private Boolean isIrrigated;
 
+  @JsonProperty(access = Access.READ_ONLY)
   private Integer startTriesCount;
 
+  @JsonProperty(access = Access.READ_ONLY)
   private Boolean hasAlert;
 
+  @JsonProperty(access = Access.READ_ONLY)
   private String startIrrigationTime;
 
+  @JsonProperty(access = Access.READ_ONLY)
   private String lastIrrigationTime;
 
   private Integer waterAmount;

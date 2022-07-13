@@ -8,7 +8,6 @@ import com.example.automaticirrigationsystem.dto.PlotConfigDTO;
 import com.example.automaticirrigationsystem.dto.PlotDTO;
 import com.example.automaticirrigationsystem.repository.PlotRepository;
 import com.example.automaticirrigationsystem.service.mapper.PlotMapper;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -40,24 +39,18 @@ public class PlotService {
    */
   @Loggable
   public Optional<PlotDTO> configurePlot(PlotConfigDTO plotConfigDTO, long id) {
-    log.debug("Request to save Plot : {}", plotConfigDTO);
+    log.debug("Request to configure Plot : {}", plotConfigDTO);
     Optional<Plot> existPlot = plotRepository.findById(id);
 
-    return existPlot.map(existingPlot -> {
-          existingPlot.setCropType(plotConfigDTO.getCropType());
-          existingPlot.setWaterAmount(plotConfigDTO.getWaterAmount());
-          List<Slot> slots = new ArrayList<>();
-          for (int i = 0; i < plotConfigDTO.getSlotsCount(); i++) {
-            Slot slot = new Slot();
-            slot.setStatus(Status.UP);
-            slots.add(slot);
-          }
-          existingPlot.setPlotTimerSlots(slots);
-          return existingPlot;
+    return existPlot.map(plot -> {
+          plot.setId(id);
+          plot.setCropType(plotConfigDTO.getCropType());
+          plot.setWaterAmount(plotConfigDTO.getWaterAmount());
+          plot.setPlotTimerSlots(configurePlotAddingTimingSlots(plot, plotConfigDTO.getSlotsCount()));
+          return plot;
         })
         .map(plotRepository::save)
         .map(plotMapper::toDto);
-
   }
 
   /**
@@ -97,7 +90,6 @@ public class PlotService {
         .findById(plotDTO.getId())
         .map(existingPlot -> {
           plotMapper.partialUpdate(existingPlot, plotDTO);
-
           return existingPlot;
         })
         .map(plotRepository::save)
@@ -141,5 +133,17 @@ public class PlotService {
     plotRepository.deleteById(id);
   }
 
+  private List<Slot> configurePlotAddingTimingSlots(
+      Plot plot, int slotsCount) {
+    List<Slot> slots = plot.getPlotTimerSlots();
+    slots.clear();
+    for (int i = 0; i < slotsCount; i++) {
+      Slot slot = new Slot();
+      slot.setStatus(Status.UP);
+      slot.setPlot(plot);
+      slots.add(slot);
+    }
+    return slots;
+  }
 
 }

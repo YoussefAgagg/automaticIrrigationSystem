@@ -6,10 +6,12 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -80,7 +82,8 @@ public class Plot implements Serializable {
   @JoinColumn(unique = true, name = "sensor_id")
   private Sensor plotSensor;
 
-  @OneToMany(mappedBy = "plot")
+  @OneToMany(mappedBy = "plot", fetch = FetchType.LAZY,
+      cascade = CascadeType.ALL, orphanRemoval = true)
   @ToString.Exclude
   @JsonIgnoreProperties(value = {"plot"}, allowSetters = true)
   private List<Slot> plotTimerSlots = new ArrayList<>();
