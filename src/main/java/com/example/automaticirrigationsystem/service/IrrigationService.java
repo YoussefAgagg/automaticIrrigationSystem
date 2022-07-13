@@ -18,16 +18,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Service Implementation for managing {@link Plot}.
+ * Service implementation for manipulating plot irrigation {@link Plot}.
  */
 @Service
 @Transactional
 @Slf4j
 @RequiredArgsConstructor
-public class PlotService {
+public class IrrigationService {
 
   private final PlotRepository plotRepository;
-
   private final PlotMapper plotMapper;
 
 

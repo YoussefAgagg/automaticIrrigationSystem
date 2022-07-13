@@ -1,8 +1,12 @@
 package com.example.automaticirrigationsystem.service;
 
 import com.example.automaticirrigationsystem.aop.logging.Loggable;
+import com.example.automaticirrigationsystem.domain.Plot;
 import com.example.automaticirrigationsystem.domain.Sensor;
 import com.example.automaticirrigationsystem.dto.SensorDTO;
+import com.example.automaticirrigationsystem.exception.NoMoreThanOneSensorAllowed;
+import com.example.automaticirrigationsystem.exception.ResourceNotFoundException;
+import com.example.automaticirrigationsystem.repository.PlotRepository;
 import com.example.automaticirrigationsystem.repository.SensorRepository;
 import com.example.automaticirrigationsystem.service.mapper.SensorMapper;
 import java.util.Optional;
@@ -23,21 +27,31 @@ import org.springframework.transaction.annotation.Transactional;
 public class SensorService {
 
   private final SensorRepository sensorRepository;
-
+  private final PlotRepository plotRepository;
   private final SensorMapper sensorMapper;
 
   /**
    * Save a sensor.
    *
    * @param sensorDTO the sensor to save.
+   * @param plotId
    * @return the persisted sensor.
    */
   @Loggable
-  public SensorDTO save(SensorDTO sensorDTO) {
+  public SensorDTO save(SensorDTO sensorDTO, Long plotId) {
     log.debug("Request to save Sensor : {}", sensorDTO);
     Sensor sensor = sensorMapper.toEntity(sensorDTO);
-    sensor = sensorRepository.save(sensor);
-    return sensorMapper.toDto(sensor);
+
+    Plot existPlot = plotRepository.findById(plotId)
+        .orElseThrow(() -> {
+          throw new ResourceNotFoundException("Plot does not exist!");
+        });
+    if (existPlot.getPlotSensor() != null) {
+      throw new NoMoreThanOneSensorAllowed(" Can not attach more than one sensor to a plot");
+    }
+    existPlot.setPlotSensor(sensor);
+    existPlot = plotRepository.save(existPlot);
+    return sensorMapper.toDto(existPlot.getPlotSensor());
   }
 
   /**
@@ -54,7 +68,6 @@ public class SensorService {
         .findById(sensorDTO.getId())
         .map(existingSensor -> {
           sensorMapper.partialUpdate(existingSensor, sensorDTO);
-
           return existingSensor;
         })
         .map(sensorRepository::save)

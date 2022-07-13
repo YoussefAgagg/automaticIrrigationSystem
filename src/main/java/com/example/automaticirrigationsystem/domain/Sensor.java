@@ -2,6 +2,7 @@ package com.example.automaticirrigationsystem.domain;
 
 
 import com.example.automaticirrigationsystem.domain.enumeration.Status;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 import java.util.Objects;
 import javax.persistence.Column;
@@ -11,6 +12,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
@@ -49,6 +51,12 @@ public class Sensor implements Serializable {
   @Enumerated(EnumType.STRING)
   @Column(name = "status")
   private Status status;
+
+  @ToString.Exclude
+  @JsonIgnoreProperties(value = {"plotSensor", "plotTimerSlots"}, allowSetters = true)
+  @OneToOne(mappedBy = "plotSensor")
+  private Plot plot;
+
 
   @Override
   public boolean equals(Object o) {

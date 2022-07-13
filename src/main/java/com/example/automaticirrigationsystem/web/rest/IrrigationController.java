@@ -6,7 +6,6 @@ import com.example.automaticirrigationsystem.dto.SensorDTO;
 import com.example.automaticirrigationsystem.exception.ResourceNotFoundException;
 import com.example.automaticirrigationsystem.service.SensorService;
 import com.example.automaticirrigationsystem.util.PaginationUtil;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
@@ -21,7 +20,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,37 +27,34 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 /**
- * REST controller for managing {@link com.example.automaticirrigationsystem.domain.Sensor}.
+ * REST controller for manipulating irrigation business.
  */
 @RestController
 @RequestMapping("/api")
 @Slf4j
 @RequiredArgsConstructor
-public class SensorResourceController {
+public class IrrigationController {
 
   private final SensorService sensorService;
 
   /**
    * {@code POST  /sensors} : Attach a new sensor to a plot.
    *
-   * @param sensorDTO the sensorDTO to create.
-   * @param plotId    plot id to attach the sensor on.
+   * @param plotId    plot id to start irrigation.
    * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new
-   * sensorDTO, or with status {@code 400 (Bad Request)} if the sensor has already an ID.
+   * sensorDTO, or with status {@code 400 (Bad Request)} if the plot does not exist.
    * @throws URISyntaxException if the Location URI syntax is incorrect.
-   */
-  @PostMapping("/sensors/{id}")
-  @Loggable
-  public ResponseEntity<SensorDTO> attachSensorToPlot(
-      @PathVariable(value = "id", required = false) final Long plotId,
-      @Valid @RequestBody SensorDTO sensorDTO)
-      throws URISyntaxException {
-    log.debug("REST request to save Sensor : {}", sensorDTO);
-    SensorDTO result = sensorService.save(sensorDTO, plotId);
-    return ResponseEntity
-        .created(new URI("/api/sensors/" + result.getId()))
-        .body(result);
-  }
+
+   @GetMapping("/irrigate/{id}")
+   @Loggable public ResponseEntity<SensorDTO> startPlotIrrigation(
+   @PathVariable(value = "id", required = true) final Long plotId)
+   throws URISyntaxException {
+   log.debug("REST request to start irrigation : {}", plotId);
+   SensorDTO result = sensorService.save(sensorDTO, plotId);
+   return ResponseEntity
+   .created(new URI("/api/sensors/" + result.getId()))
+   .body(result);
+   }*/
 
   /**
    * {@code PUT  /sensors/:id} : Updates an existing sensor.

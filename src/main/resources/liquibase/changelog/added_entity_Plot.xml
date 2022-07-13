@@ -21,7 +21,7 @@
             <column name="width" type="double">
                 <constraints nullable="true"/>
             </column>
-            <column name="is_irrigated" type="boolean">
+            <column defaultValue="false" name="is_irrigated" type="boolean">
                 <constraints nullable="true"/>
             </column>
             <column name="tries_count" type="integer">

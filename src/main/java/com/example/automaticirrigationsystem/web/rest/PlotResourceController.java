@@ -5,7 +5,6 @@ import com.example.automaticirrigationsystem.aop.logging.Loggable;
 import com.example.automaticirrigationsystem.dto.PlotConfigDTO;
 import com.example.automaticirrigationsystem.dto.PlotDTO;
 import com.example.automaticirrigationsystem.exception.ResourceNotFoundException;
-import com.example.automaticirrigationsystem.repository.PlotRepository;
 import com.example.automaticirrigationsystem.service.PlotService;
 import com.example.automaticirrigationsystem.util.PaginationUtil;
 import java.net.URI;
@@ -40,7 +39,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 public class PlotResourceController {
 
   private final PlotService plotService;
-  private final PlotRepository plotRepository;
 
   /**
    * {@code POST  /plots} : Create a new plot.

@@ -48,6 +48,7 @@ public class PlotDTO implements Serializable {
 
   private CropType cropType;
 
+  @JsonIgnoreProperties(value = {"plot"}, allowSetters = true)
   private Sensor plotSensor;
   @JsonIgnoreProperties(value = {"plot"}, allowSetters = true)
   private List<Slot> plotTimerSlots = new ArrayList<>();

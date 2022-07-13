@@ -34,7 +34,6 @@ import org.hibernate.Hibernate;
 @Table(name = "plot")
 @Setter
 @Getter
-@ToString
 @RequiredArgsConstructor
 public class Plot implements Serializable {
 
@@ -78,8 +77,9 @@ public class Plot implements Serializable {
   @Column(name = "crop_type")
   private CropType cropType;
 
-  @OneToOne
-  @JoinColumn(unique = true, name = "sensor_id")
+  @OneToOne(cascade = CascadeType.ALL)
+  @JoinColumn(unique = true, name = "sensor_id", referencedColumnName = "id")
+  @JsonIgnoreProperties(value = {"plot"}, allowSetters = true)
   private Sensor plotSensor;
 
   @OneToMany(mappedBy = "plot", fetch = FetchType.LAZY,

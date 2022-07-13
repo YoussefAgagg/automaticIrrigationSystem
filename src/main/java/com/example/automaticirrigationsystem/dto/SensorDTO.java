@@ -13,9 +13,9 @@ public class SensorDTO implements Serializable {
 
   private Long id;
 
-  @NotNull
   private String sensorCode;
 
+  @NotNull
   private Status status;
 
 }

@@ -1,6 +1,7 @@
 package com.example.automaticirrigationsystem.web.rest.advice;
 
 import com.example.automaticirrigationsystem.exception.BadRequestException;
+import com.example.automaticirrigationsystem.exception.NoMoreThanOneSensorAllowed;
 import com.example.automaticirrigationsystem.exception.ResourceNotFoundException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -16,7 +17,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @ControllerAdvice
 public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
 
-  @ExceptionHandler(value = {IllegalArgumentException.class, IllegalStateException.class})
+  @ExceptionHandler(value = {IllegalArgumentException.class, IllegalStateException.class,
+      NoMoreThanOneSensorAllowed.class})
   protected ResponseEntity<Object> handleConflict(RuntimeException ex, WebRequest request) {
 
     return handleExceptionInternal(ex, ex.getMessage(), new HttpHeaders(), HttpStatus.CONFLICT,
@@ -42,5 +44,4 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
         HttpStatus.INTERNAL_SERVER_ERROR, request);
 
   }
-
 }
