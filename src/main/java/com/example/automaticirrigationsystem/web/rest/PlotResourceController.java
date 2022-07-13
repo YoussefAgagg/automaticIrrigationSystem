@@ -124,9 +124,11 @@ public class PlotResourceController {
       throw new BadRequestException("Plot not found id not found");
     }
 
-    PlotDTO result = plotService.update(plotDTO);
-    return ResponseEntity
-        .ok().body(result);
+    Optional<PlotDTO> result = plotService.partialUpdate(plotDTO);
+    return result.map(plot -> ResponseEntity.ok().body(plot))
+        .orElseThrow(() -> {
+          throw new ResourceNotFoundException("plot doesn't exist");
+        });
   }
 
   /**

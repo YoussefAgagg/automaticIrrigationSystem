@@ -37,7 +37,7 @@ public class PlotDTO implements Serializable {
 
   private String lastIrrigationTime;
 
-  private int waterAmount;
+  private Integer waterAmount;
 
   private CropType cropType;
 

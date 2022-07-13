@@ -11,7 +11,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.example.automaticirrigationsystem.domain.Plot;
+import com.example.automaticirrigationsystem.domain.Slot;
 import com.example.automaticirrigationsystem.domain.enumeration.CropType;
+import com.example.automaticirrigationsystem.domain.enumeration.Status;
 import com.example.automaticirrigationsystem.dto.PlotConfigDTO;
 import com.example.automaticirrigationsystem.dto.PlotDTO;
 import com.example.automaticirrigationsystem.repository.PlotRepository;
@@ -49,8 +51,7 @@ class PlotResourceControllerIT {
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
     private static final String ENTITY_API_CONFIG_URL = "/api/plots/config/{id}";
     private static final Random random = new Random();
-    private static final AtomicLong count = new AtomicLong(
-        random.nextInt() + (2 * Integer.MAX_VALUE));
+    private static final AtomicLong count = new AtomicLong(random.nextInt());
     @Autowired
     private PlotRepository plotRepository;
 
@@ -208,7 +209,7 @@ class PlotResourceControllerIT {
         assertThat(testPlot.getPlotWidth()).isEqualTo(DEFAULT_WIDTH);
         assertThat(testPlot.getWaterAmount()).isEqualTo(WATER_AMOUNT);
         assertThat(testPlot.getCropType()).isEqualTo(CROP_TYPE);
-        assertThat(testPlot.getPlotTimerSlots().size()).isEqualTo(SLOTS_COUNT);
+        assertThat(testPlot.getPlotTimerSlots()).hasSize(SLOTS_COUNT);
     }
 
 
@@ -245,6 +246,47 @@ class PlotResourceControllerIT {
         assertThat(testPlot.getPlotCode()).isEqualTo(UPDATED_CODE);
         assertThat(testPlot.getPlotLength()).isEqualTo(UPDATED_LENGTH);
         assertThat(testPlot.getPlotWidth()).isEqualTo(UPDATED_WIDTH);
+    }
+
+    @Test
+    @Transactional
+    void updatePlotWillNotAffectTheConfige() throws Exception {
+        // Initialize the database
+        plot.setCropType(CROP_TYPE);
+        plot.setWaterAmount(WATER_AMOUNT);
+        Slot slot = new Slot();
+        slot.setStatus(Status.UP);
+        plotRepository.saveAndFlush(plot);
+
+        int databaseSizeBeforeUpdate = plotRepository.findAll().size();
+
+        // Update the plot
+        Plot updatedPlot = new Plot();
+        updatedPlot.setId(plot.getId());
+        updatedPlot.setPlotCode(UPDATED_CODE);
+        updatedPlot.setPlotLength(UPDATED_LENGTH);
+        updatedPlot.setPlotWidth(UPDATED_WIDTH);
+
+        PlotDTO plotDTO = plotMapper.toDto(updatedPlot);
+
+        restPlotMockMvc
+            .perform(
+                put(ENTITY_API_URL_ID, plotDTO.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(plotDTO))
+            )
+            .andExpect(status().isOk());
+
+        // Validate the Plot in the database
+        List<Plot> plotList = plotRepository.findAll();
+        assertThat(plotList).hasSize(databaseSizeBeforeUpdate);
+        Plot testPlot = plotList.get(plotList.size() - 1);
+        assertThat(testPlot.getPlotCode()).isEqualTo(UPDATED_CODE);
+        assertThat(testPlot.getPlotLength()).isEqualTo(UPDATED_LENGTH);
+        assertThat(testPlot.getPlotWidth()).isEqualTo(UPDATED_WIDTH);
+        assertThat(testPlot.getWaterAmount()).isEqualTo(WATER_AMOUNT);
+        assertThat(testPlot.getCropType()).isEqualTo(CROP_TYPE);
+
     }
 
     @Test

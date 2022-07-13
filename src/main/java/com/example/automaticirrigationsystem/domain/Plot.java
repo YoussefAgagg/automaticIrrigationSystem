@@ -70,7 +70,7 @@ public class Plot implements Serializable {
   private String lastIrrigationTime;
 
   @Column(name = "water_amount")
-  private int waterAmount;
+  private Integer waterAmount;
 
   @Enumerated(EnumType.STRING)
   @Column(name = "crop_type")
