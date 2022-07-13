@@ -10,9 +10,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.example.automaticirrigationsystem.domain.Plot;
 import com.example.automaticirrigationsystem.domain.Sensor;
 import com.example.automaticirrigationsystem.domain.enumeration.Status;
 import com.example.automaticirrigationsystem.dto.SensorDTO;
+import com.example.automaticirrigationsystem.repository.PlotRepository;
 import com.example.automaticirrigationsystem.repository.SensorRepository;
 import com.example.automaticirrigationsystem.service.mapper.SensorMapper;
 import java.util.List;
@@ -51,6 +53,9 @@ class SensorResourceControllerIT {
     private SensorRepository sensorRepository;
 
     @Autowired
+    private PlotRepository plotRepository;
+
+    @Autowired
     private SensorMapper sensorMapper;
 
     @Autowired
@@ -72,11 +77,17 @@ class SensorResourceControllerIT {
     @Test
     @Transactional
     void createSensor() throws Exception {
+        Plot plot = new Plot();
+        plot.setPlotWidth(100D);
+        plot.setPlotLength(100D);
+        plot.setPlotCode("dlsl");
+        plotRepository.saveAndFlush(plot);
+
         int databaseSizeBeforeCreate = sensorRepository.findAll().size();
         // Create the Sensor
         SensorDTO sensorDTO = sensorMapper.toDto(sensor);
         restSensorMockMvc
-            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON)
+            .perform(post(ENTITY_API_URL_ID, plot.getId()).contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtil.convertObjectToJsonBytes(sensorDTO)))
             .andExpect(status().isCreated());
 
@@ -88,44 +99,8 @@ class SensorResourceControllerIT {
         assertThat(testSensor.getStatus()).isEqualTo(DEFAULT_STATUS);
     }
 
-    @Test
-    @Transactional
-    void createSensorWithExistingId() throws Exception {
-        // Create the Sensor with an existing ID
-        sensor.setId(1L);
-        SensorDTO sensorDTO = sensorMapper.toDto(sensor);
 
-        int databaseSizeBeforeCreate = sensorRepository.findAll().size();
 
-        // An entity with an existing ID cannot be created, so this API call must fail
-        restSensorMockMvc
-            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON)
-                .content(TestUtil.convertObjectToJsonBytes(sensorDTO)))
-            .andExpect(status().isBadRequest());
-
-        // Validate the Sensor in the database
-        List<Sensor> sensorList = sensorRepository.findAll();
-        assertThat(sensorList).hasSize(databaseSizeBeforeCreate);
-    }
-
-    @Test
-    @Transactional
-    void checkCodeIsRequired() throws Exception {
-        int databaseSizeBeforeTest = sensorRepository.findAll().size();
-        // set the field null
-        sensor.setSensorCode(null);
-
-        // Create the Sensor, which fails.
-        SensorDTO sensorDTO = sensorMapper.toDto(sensor);
-
-        restSensorMockMvc
-            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON)
-                .content(TestUtil.convertObjectToJsonBytes(sensorDTO)))
-            .andExpect(status().isBadRequest());
-
-        List<Sensor> sensorList = sensorRepository.findAll();
-        assertThat(sensorList).hasSize(databaseSizeBeforeTest);
-    }
 
     @Test
     @Transactional
@@ -215,35 +190,14 @@ class SensorResourceControllerIT {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(TestUtil.convertObjectToJsonBytes(sensorDTO))
             )
-            .andExpect(status().isBadRequest());
+            .andExpect(status().isNotFound());
 
         // Validate the Sensor in the database
         List<Sensor> sensorList = sensorRepository.findAll();
         assertThat(sensorList).hasSize(databaseSizeBeforeUpdate);
     }
 
-    @Test
-    @Transactional
-    void updateWithIdMismatchSensorIdAndPathVarId() throws Exception {
-        int databaseSizeBeforeUpdate = sensorRepository.findAll().size();
-        sensor.setId(count.incrementAndGet());
 
-        // Create the Sensor
-        SensorDTO sensorDTO = sensorMapper.toDto(sensor);
-
-        // If url ID doesn't match entity ID, it will throw BadRequestAlertException
-        restSensorMockMvc
-            .perform(
-                put(ENTITY_API_URL_ID, count.incrementAndGet())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(sensorDTO))
-            )
-            .andExpect(status().isBadRequest());
-
-        // Validate the Sensor in the database
-        List<Sensor> sensorList = sensorRepository.findAll();
-        assertThat(sensorList).hasSize(databaseSizeBeforeUpdate);
-    }
 
     @Test
     @Transactional
