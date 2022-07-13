@@ -2,10 +2,14 @@ package com.example.automaticirrigationsystem.service;
 
 import com.example.automaticirrigationsystem.aop.logging.Loggable;
 import com.example.automaticirrigationsystem.domain.Plot;
+import com.example.automaticirrigationsystem.domain.Slot;
+import com.example.automaticirrigationsystem.domain.enumeration.Status;
 import com.example.automaticirrigationsystem.dto.PlotConfigDTO;
 import com.example.automaticirrigationsystem.dto.PlotDTO;
 import com.example.automaticirrigationsystem.repository.PlotRepository;
 import com.example.automaticirrigationsystem.service.mapper.PlotMapper;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,18 +41,18 @@ public class PlotService {
   @Loggable
   public Optional<PlotDTO> configurePlot(PlotConfigDTO plotConfigDTO, long id) {
     log.debug("Request to save Plot : {}", plotConfigDTO);
-    plotConfigDTO.setId(id);
-
     Optional<Plot> existPlot = plotRepository.findById(id);
-//    if (!existPlot.isPresent()) {
-//      throw new ResourceNotFoundException("No content available for the given plot ID");
-//    }
 
     return existPlot.map(existingPlot -> {
           existingPlot.setCropType(plotConfigDTO.getCropType());
           existingPlot.setWaterAmount(plotConfigDTO.getWaterAmount());
-
-          // TODO forloop slots size -> creating list to be binded to the plot for saving
+          List<Slot> slots = new ArrayList<>();
+          for (int i = 0; i < plotConfigDTO.getSlotsCount(); i++) {
+            Slot slot = new Slot();
+            slot.setStatus(Status.UP);
+            slots.add(slot);
+          }
+          existingPlot.setPlotTimerSlots(slots);
           return existingPlot;
         })
         .map(plotRepository::save)
