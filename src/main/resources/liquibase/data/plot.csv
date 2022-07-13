@@ -1,0 +1,2 @@
+id;code;length;width;is_irrigated;tries_count;has_alert;water_amount;last_irrigation_time;start_irrigation_time;crop_type;sensor_id
+1;plot-1;20;10;false;0;false;100;2018-11-04T12:45:30;2018-11-03T12:45:30;RICE;1
