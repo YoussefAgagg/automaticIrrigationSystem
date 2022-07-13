@@ -33,7 +33,10 @@ public class PlotDTO implements Serializable {
   private Boolean isIrrigated;
 
   @JsonProperty(access = Access.READ_ONLY)
-  private Integer startTriesCount;
+  private Integer sensorCallCount;
+
+  @JsonProperty(access = Access.READ_ONLY)
+  private String lastSensorCallTime;
 
   @JsonProperty(access = Access.READ_ONLY)
   private Boolean hasAlert;

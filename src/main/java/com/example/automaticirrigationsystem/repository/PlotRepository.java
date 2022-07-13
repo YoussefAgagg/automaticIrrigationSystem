@@ -1,15 +1,9 @@
 package com.example.automaticirrigationsystem.repository;
 
-
 import com.example.automaticirrigationsystem.domain.Plot;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import java.util.List;
 
-/**
- * Spring Data SQL repository for the Plot entity.
- */
-@SuppressWarnings("unused")
-@Repository
-public interface PlotRepository extends JpaRepository<Plot, Long> {
+public interface PlotRepository extends CustomRepository<Plot, Long> {
 
+  List<Plot> findAllByHasAlertIsTrue();
 }

@@ -10,6 +10,7 @@ import com.example.automaticirrigationsystem.repository.PlotRepository;
 import com.example.automaticirrigationsystem.service.mapper.PlotMapper;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -150,11 +151,19 @@ public class PlotService {
 
   private Plot setPlotToDefault(Plot plot) {
     plot.setIsIrrigated(false);
-    plot.setStartTriesCount(0);
+    plot.setSensorCallCount(0);
     plot.setHasAlert(false);
     plot.setStartIrrigationTime("");
     plot.setLastIrrigationTime("");
     plot.setWaterAmount(0);
+    plot.setLastSensorCallTime("");
     return plot;
+  }
+
+  public List<PlotDTO> getAllPlotsHasAlarm() {
+
+    return plotRepository.findAllByHasAlertIsTrue().stream()
+        .map(plotMapper::toDto)
+        .collect(Collectors.toList());
   }
 }

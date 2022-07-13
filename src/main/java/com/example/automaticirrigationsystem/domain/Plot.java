@@ -58,8 +58,11 @@ public class Plot implements Serializable {
   @Column(name = "is_irrigated")
   private Boolean isIrrigated;
 
-  @Column(name = "tries_count")
-  private Integer startTriesCount;
+  @Column(name = "sensor_call_count")
+  private Integer sensorCallCount;
+
+  @Column(name = "last_sensor_call_time")
+  private String lastSensorCallTime;
 
   @Column(name = "has_alert")
   private Boolean hasAlert;

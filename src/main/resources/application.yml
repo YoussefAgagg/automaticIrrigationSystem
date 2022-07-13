@@ -1,4 +1,6 @@
 spring:
+  cache:
+    type: "none"
   h2:
     console:
       enabled: true
@@ -19,6 +21,8 @@ spring:
 logging:
   level:
     ROOT: Error
-    org.springframework.web : DEBUG
+    org.springframework.web: DEBUG
     org.hibernate.SQL: DEBUG
     com.example.automaticirrigationsystem: DEBUG
+tries:
+  count: 15

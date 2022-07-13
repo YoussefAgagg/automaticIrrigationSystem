@@ -2,18 +2,19 @@ package com.example.automaticirrigationsystem.service;
 
 import com.example.automaticirrigationsystem.aop.logging.Loggable;
 import com.example.automaticirrigationsystem.domain.Plot;
-import com.example.automaticirrigationsystem.domain.Slot;
 import com.example.automaticirrigationsystem.domain.enumeration.Status;
-import com.example.automaticirrigationsystem.dto.PlotConfigDTO;
 import com.example.automaticirrigationsystem.dto.PlotDTO;
+import com.example.automaticirrigationsystem.exception.BadRequestException;
+import com.example.automaticirrigationsystem.exception.ResourceNotFoundException;
+import com.example.automaticirrigationsystem.exception.SensorCantBeReachedException;
 import com.example.automaticirrigationsystem.repository.PlotRepository;
 import com.example.automaticirrigationsystem.service.mapper.PlotMapper;
-import java.util.List;
+import java.time.LocalDateTime;
 import java.util.Optional;
+import javax.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,132 +29,54 @@ public class IrrigationService {
 
   private final PlotRepository plotRepository;
   private final PlotMapper plotMapper;
+  private final SensorCallingScheduler sensorCallingScheduler;
+  private final EntityManager entityManager;
 
+  @Value("${tries.count}")
+  private int triesCount = 10;
 
   /**
-   * Save a plot.
+   * start irrigate a plot.
    *
-   * @param plotConfigDTO the plot to save.
+   * @param plotId the plot id to start irrigate.
    * @return the persisted plot.
    */
   @Loggable
-  public Optional<PlotDTO> configurePlot(PlotConfigDTO plotConfigDTO, long id) {
-    log.debug("Request to configure Plot : {}", plotConfigDTO);
-    Optional<Plot> existPlot = plotRepository.findById(id);
+  public Optional<PlotDTO> startIrrigate(Long plotId) {
+    log.debug("Request to start irrigate a Plot : {}", plotId);
+    Optional<Plot> existPlot = plotRepository.findById(plotId);
+
+    existPlot.ifPresentOrElse(plot -> {
+      if (plot.getSensorCallCount() > 0) {
+        throw new SensorCantBeReachedException(
+            "Be patient!"
+                + " sensor is scheduled to be called " + plot.getSensorCallCount() + "/"
+                + triesCount + " " + plot.getLastSensorCallTime());
+      } else {
+        sensorCallingScheduler.tryToConnectToSensor(plot, entityManager);
+      }
+
+    }, () -> {
+      throw new ResourceNotFoundException("plot doesn't exist!");
+    });
+
+    return plotRepository.findById(plotId).map(plotMapper::toDto);
+  }
+
+  @Loggable
+  public Optional<PlotDTO> endIrrigate(Long plotId) {
+    log.debug("Request to end irrigate a Plot : {}", plotId);
+    Optional<Plot> existPlot = plotRepository.findById(plotId);
 
     return existPlot.map(plot -> {
-          plot.setId(id);
-          plot.setCropType(plotConfigDTO.getCropType());
-          plot.setWaterAmount(plotConfigDTO.getWaterAmount());
-          plot.setPlotTimerSlots(configurePlotAddingTimingSlots(plot, plotConfigDTO.getSlotsCount()));
-          return plot;
-        })
-        .map(plotRepository::save)
-        .map(plotMapper::toDto);
-  }
+      if (plot.getPlotSensor().getStatus() == Status.DOWN) {
+        throw new BadRequestException("the plot sensor is down");
+      }
+      plot.setIsIrrigated(false);
+      plot.setLastIrrigationTime(LocalDateTime.now().toString());
 
-  /**
-   * Save a plot.
-   *
-   * @param plotDTO the plot to save.
-   * @return the persisted plot.
-   */
-  @Loggable
-  public PlotDTO save(PlotDTO plotDTO) {
-    log.debug("Request to save Plot : {}", plotDTO);
-    plotDTO.setId(null);
-    Plot plot = plotMapper.toEntity(plotDTO);
-    plot = setPlotToDefault(plot);
-    plot = plotRepository.save(plot);
-    return plotMapper.toDto(plot);
-  }
+      return plot;
+    }).map(plotMapper::toDto);
 
-
-  @Loggable
-  public PlotDTO update(PlotDTO plotDTO) {
-    log.debug("Request to update Plot : {}", plotDTO);
-    Plot plot = plotMapper.toEntity(plotDTO);
-    plot = plotRepository.save(plot);
-    return plotMapper.toDto(plot);
-  }
-
-  /**
-   * Partially update a plot.
-   *
-   * @param plotDTO the plot to update partially.
-   * @return the persisted plot.
-   */
-  @Loggable
-  public Optional<PlotDTO> partialUpdate(PlotDTO plotDTO) {
-    log.debug("Request to partially update Plot : {}", plotDTO);
-
-    return plotRepository
-        .findById(plotDTO.getId())
-        .map(existingPlot -> {
-          plotMapper.partialUpdate(existingPlot, plotDTO);
-          return existingPlot;
-        })
-        .map(plotRepository::save)
-        .map(plotMapper::toDto);
-  }
-
-  /**
-   * Get all the plots.
-   *
-   * @param pageable the pagination information.
-   * @return the list of plots.
-   */
-  @Loggable
-  @Transactional(readOnly = true)
-  public Page<PlotDTO> findAll(Pageable pageable) {
-    log.debug("Request to get all Plots");
-    return plotRepository.findAll(pageable).map(plotMapper::toDto);
-  }
-
-  /**
-   * Get one plot by id.
-   *
-   * @param id the id of the plot.
-   * @return the plot.
-   */
-  @Loggable
-  @Transactional(readOnly = true)
-  public Optional<PlotDTO> findOne(Long id) {
-    log.debug("Request to get Plot : {}", id);
-    return plotRepository.findById(id).map(plotMapper::toDto);
-  }
-
-  /**
-   * Delete the plot by id.
-   *
-   * @param id the id of the plot.
-   */
-  @Loggable
-  public void delete(Long id) {
-    log.debug("Request to delete Plot : {}", id);
-    plotRepository.deleteById(id);
-  }
-
-  private List<Slot> configurePlotAddingTimingSlots(
-      Plot plot, int slotsCount) {
-    List<Slot> slots = plot.getPlotTimerSlots();
-    slots.clear();
-    for (int i = 0; i < slotsCount; i++) {
-      Slot slot = new Slot();
-      slot.setStatus(Status.UP);
-      slot.setPlot(plot);
-      slots.add(slot);
-    }
-    return slots;
-  }
-
-  private Plot setPlotToDefault(Plot plot) {
-    plot.setIsIrrigated(false);
-    plot.setStartTriesCount(0);
-    plot.setHasAlert(false);
-    plot.setStartIrrigationTime("");
-    plot.setLastIrrigationTime("");
-    plot.setWaterAmount(0);
-    return plot;
   }
 }

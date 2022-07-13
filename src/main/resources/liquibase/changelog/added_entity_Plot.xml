@@ -15,26 +15,29 @@
             <column name="code" type="varchar(255)">
                 <constraints nullable="false" unique="true" uniqueConstraintName="ux_plot__code"/>
             </column>
-            <column name="length" type="double">
-                <constraints nullable="true"/>
-            </column>
-            <column name="width" type="double">
-                <constraints nullable="true"/>
-            </column>
-            <column defaultValue="false" name="is_irrigated" type="boolean">
-                <constraints nullable="true"/>
-            </column>
-            <column name="tries_count" type="integer">
-                <constraints nullable="true"/>
-            </column>
-            <column name="has_alert" type="boolean">
-                <constraints nullable="true"/>
-            </column>
-            <column name="water_amount" type="integer">
-                <constraints nullable="true"/>
-            </column>
-            <column name="last_irrigation_time" type="varchar(255)">
-                <constraints nullable="true"/>
+          <column name="length" type="double">
+            <constraints nullable="true"/>
+          </column>
+          <column name="width" type="double">
+            <constraints nullable="true"/>
+          </column>
+          <column defaultValue="false" name="is_irrigated" type="boolean">
+            <constraints nullable="true"/>
+          </column>
+          <column name="sensor_call_count" type="integer">
+            <constraints nullable="true"/>
+          </column>
+          <column name="last_sensor_call_time" type="varchar(255)">
+            <constraints nullable="true"/>
+          </column>
+          <column name="has_alert" type="boolean">
+            <constraints nullable="true"/>
+          </column>
+          <column name="water_amount" type="integer">
+            <constraints nullable="true"/>
+          </column>
+          <column name="last_irrigation_time" type="varchar(255)">
+            <constraints nullable="true"/>
             </column>
             <column name="start_irrigation_time" type="varchar(255)">
                 <constraints nullable="true"/>
