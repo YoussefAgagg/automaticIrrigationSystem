@@ -305,35 +305,14 @@ class PlotResourceControllerIT {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(TestUtil.convertObjectToJsonBytes(plotDTO))
             )
-            .andExpect(status().isBadRequest());
+            .andExpect(status().isNotFound());
 
         // Validate the Plot in the database
         List<Plot> plotList = plotRepository.findAll();
         assertThat(plotList).hasSize(databaseSizeBeforeUpdate);
     }
 
-    @Test
-    @Transactional
-    void updateWithIdMismatchPlotIdAndPathVarId() throws Exception {
-        int databaseSizeBeforeUpdate = plotRepository.findAll().size();
-        plot.setId(count.incrementAndGet());
 
-        // Create the Plot
-        PlotDTO plotDTO = plotMapper.toDto(plot);
-
-        // If url ID doesn't match entity ID, it will throw BadRequestAlertException
-        restPlotMockMvc
-            .perform(
-                put(ENTITY_API_URL_ID, count.incrementAndGet())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(plotDTO))
-            )
-            .andExpect(status().isBadRequest());
-
-        // Validate the Plot in the database
-        List<Plot> plotList = plotRepository.findAll();
-        assertThat(plotList).hasSize(databaseSizeBeforeUpdate);
-    }
 
     @Test
     @Transactional
