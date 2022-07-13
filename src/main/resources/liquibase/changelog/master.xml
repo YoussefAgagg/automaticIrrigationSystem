@@ -13,6 +13,7 @@
     <property name="uuidType" value="uuid" dbms="h2, postgresql"/>
     <property name="datetimeType" value="datetime(6)" dbms="mysql, mariadb"/>
     <property name="datetimeType" value="datetime" dbms="oracle, mssql, postgresql, h2"/>
+    <include file="liquibase/changelog/init.xml"/>
     <include file="liquibase/changelog/added_entity_Sensor.xml"/>
     <include file="liquibase/changelog/added_entity_Plot.xml"/>
     <include file="liquibase/changelog/added_entity_constraints_Plot.xml"/>
