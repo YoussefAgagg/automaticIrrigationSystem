@@ -32,7 +32,7 @@ public class SensorCallingScheduler {
       triesCount--;
       plot = plotRepository.findById(plot.getId()).get();
 
-      log.debug("crrunet plot status {}", plot);
+      log.debug("current plot  {}", plot);
 
       if (plot.getPlotSensor().getStatus() == Status.UP) {
         log.debug("sensor is up now after {} tries", triesCount);
@@ -60,6 +60,8 @@ public class SensorCallingScheduler {
     if (triesCount == 0) {
       plot.setHasAlert(true);
     }
+    // reset the count
+    plot.setSensorCallCount(0);
 
     plotRepository.save(plot);
 
