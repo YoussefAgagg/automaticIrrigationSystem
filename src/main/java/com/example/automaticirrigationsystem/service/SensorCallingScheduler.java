@@ -5,35 +5,34 @@ import com.example.automaticirrigationsystem.domain.Plot;
 import com.example.automaticirrigationsystem.domain.enumeration.Status;
 import com.example.automaticirrigationsystem.repository.PlotRepository;
 import java.time.LocalDateTime;
-import javax.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
+
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class SensorCallingScheduler {
 
-  private static final int timeSleep = 1000 * 60;
+  private static final int timeSleep = 1000 * 30;
   private final PlotRepository plotRepository;
   @Value("${tries.count}")
   private int triesCount = 10;
 
   @Async
   @Loggable
-  public void tryToConnectToSensor(Plot plot, EntityManager entityManager) {
+  public void tryToConnectToSensor(Plot plot) {
     log.debug("try to re connect to sensor  '{}'", plot);
 
     while (triesCount > 0) {
       log.debug("try to connect sensor {}", triesCount);
       triesCount--;
-      entityManager.clear();
-      plot = getPlot(plot.getId());
+      plot = plotRepository.findById(plot.getId()).get();
+
+      log.debug("crrunet plot status {}", plot);
 
       if (plot.getPlotSensor().getStatus() == Status.UP) {
         log.debug("sensor is up now after {} tries", triesCount);
@@ -48,13 +47,13 @@ public class SensorCallingScheduler {
 
       plot.setSensorCallCount(plot.getSensorCallCount() + 1);
       plot.setLastSensorCallTime(LocalDateTime.now().toString());
-
+      plotRepository.save(plot);
       try {
         Thread.sleep(timeSleep);
       } catch (InterruptedException e) {
         log.error("interrupted {}", e);
       }
-      plotRepository.save(plot);
+
 
     }
 
@@ -65,14 +64,5 @@ public class SensorCallingScheduler {
     plotRepository.save(plot);
 
   }
-
-  @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
-  Plot getPlot(Long id) {
-
-    Plot plot = plotRepository.findById(id).get();
-    plotRepository.refresh(plot);
-    return plot;
-  }
-
 
 }

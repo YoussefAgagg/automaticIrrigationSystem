@@ -34,6 +34,7 @@ import org.hibernate.Hibernate;
 @Table(name = "plot")
 @Setter
 @Getter
+@ToString
 @RequiredArgsConstructor
 public class Plot implements Serializable {
 

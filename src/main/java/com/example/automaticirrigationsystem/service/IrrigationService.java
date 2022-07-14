@@ -53,7 +53,7 @@ public class IrrigationService {
                 + " sensor is scheduled to be called " + plot.getSensorCallCount() + "/"
                 + triesCount + " " + plot.getLastSensorCallTime());
       } else {
-        sensorCallingScheduler.tryToConnectToSensor(plot, entityManager);
+        sensorCallingScheduler.tryToConnectToSensor(plot);
       }
 
     }, () -> {
