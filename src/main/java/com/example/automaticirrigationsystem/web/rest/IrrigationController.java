@@ -5,6 +5,7 @@ import com.example.automaticirrigationsystem.aop.logging.Loggable;
 import com.example.automaticirrigationsystem.dto.PlotDTO;
 import com.example.automaticirrigationsystem.exception.ResourceNotFoundException;
 import com.example.automaticirrigationsystem.service.IrrigationService;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +26,7 @@ public class IrrigationController {
   private final IrrigationService irrigationService;
 
   /**
-   * {@code GET  /irrigate} : start irrigate a plot.
+   * {@code GET  /irrigate/start/{id}} : start irrigate a plot.
    *
    * @param plotId plot id to start irrigation.
    * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new
@@ -36,15 +37,15 @@ public class IrrigationController {
   public ResponseEntity<PlotDTO> startPlotIrrigation(
       @PathVariable(value = "id") final Long plotId) {
     log.debug("REST request to start irrigation : {}", plotId);
-    var result = irrigationService.startIrrigate(plotId);
+    Optional<PlotDTO> result = irrigationService.startIrrigate(plotId);
     return result.map(plot -> ResponseEntity.ok().body(plot))
         .orElseThrow(() -> {
-          throw new ResourceNotFoundException("plot doesn't exist");
+          throw new ResourceNotFoundException("plot doesn't exist!");
         });
   }
 
   /**
-   * {@code GET  /irrigate} : start irrigate a plot.
+   * {@code GET  /irrigate/end/{id}} : end irrigate a plot.
    *
    * @param plotId plot id to start irrigation.
    * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new
@@ -58,7 +59,7 @@ public class IrrigationController {
     var result = irrigationService.endIrrigate(plotId);
     return result.map(plot -> ResponseEntity.ok().body(plot))
         .orElseThrow(() -> {
-          throw new ResourceNotFoundException("plot doesn't exist");
+          throw new ResourceNotFoundException("plot doesn't exist!");
         });
   }
 

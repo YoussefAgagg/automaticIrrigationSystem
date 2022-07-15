@@ -5,13 +5,14 @@ import com.example.automaticirrigationsystem.domain.Plot;
 import com.example.automaticirrigationsystem.domain.enumeration.Status;
 import com.example.automaticirrigationsystem.dto.PlotDTO;
 import com.example.automaticirrigationsystem.exception.BadRequestException;
+import com.example.automaticirrigationsystem.exception.PlotHasAlreadyStartedToBeIrrigated;
 import com.example.automaticirrigationsystem.exception.ResourceNotFoundException;
 import com.example.automaticirrigationsystem.exception.SensorCantBeReachedException;
 import com.example.automaticirrigationsystem.repository.PlotRepository;
 import com.example.automaticirrigationsystem.service.mapper.PlotMapper;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
-import javax.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,10 +28,10 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class IrrigationService {
 
+  public static final String DATE_TIME_FORMAT = "dd-MM-yyyy HH:mm:ss";
   private final PlotRepository plotRepository;
   private final PlotMapper plotMapper;
   private final SensorCallingScheduler sensorCallingScheduler;
-  private final EntityManager entityManager;
 
   @Value("${tries.count}")
   private int triesCount = 10;
@@ -47,20 +48,48 @@ public class IrrigationService {
     Optional<Plot> existPlot = plotRepository.findById(plotId);
 
     existPlot.ifPresentOrElse(plot -> {
-      if (plot.getSensorCallCount() > 0) {
+      if (plot.getSensorCallCount() > 0 && !plot.getHasAlert()) {
         throw new SensorCantBeReachedException(
             "Be patient!"
                 + " sensor is scheduled to be called " + plot.getSensorCallCount() + "/"
                 + triesCount + " " + plot.getLastSensorCallTime());
       } else {
-        sensorCallingScheduler.tryToConnectToSensor(plot);
+        if (plot.getPlotSensor().getStatus() == Status.UP) {
+          if (plot.getIsIrrigated()) {
+            throw new PlotHasAlreadyStartedToBeIrrigated(
+                "Irrigation has already  started by: " + plot.getStartIrrigationTime());
+          }
+          updatePlotIrrigationSuccess(plot);
+        } else {
+          if (plot.getHasAlert()) {
+            throw new SensorCantBeReachedException(
+                "Sensor is DOWN, the Plot has alert ON, please try to fix  the sensor first");
+          }
+          sensorCallingScheduler.tryToConnectToSensor(plot);
+          throw new SensorCantBeReachedException(
+              "Sensor is DOWN, a time schedule is arranged to re-call the sensor");
+        }
       }
-
     }, () -> {
       throw new ResourceNotFoundException("plot doesn't exist!");
     });
 
-    return plotRepository.findById(plotId).map(plotMapper::toDto);
+    return existPlot.map(plotMapper::toDto);
+  }
+
+  private void updatePlotIrrigationSuccess(Plot plot) {
+    plot.setHasAlert(false);
+    plot.setSensorCallCount(0);
+    plot.setLastSensorCallTime("");
+    plot.setLastIrrigationTime(getFormattedNow());
+    plot.setStartIrrigationTime(getFormattedNow());
+    plot.setIsIrrigated(true);
+    plot.setHasAlert(false);
+    plot.getPlotTimerSlots().forEach(plotSlot -> plotSlot.setStatus(Status.UP));
+  }
+
+  private String getFormattedNow() {
+    return DateTimeFormatter.ofPattern(DATE_TIME_FORMAT).format(LocalDateTime.now());
   }
 
   @Loggable
@@ -69,14 +98,15 @@ public class IrrigationService {
     Optional<Plot> existPlot = plotRepository.findById(plotId);
 
     return existPlot.map(plot -> {
-      if (plot.getPlotSensor().getStatus() == Status.DOWN) {
-        throw new BadRequestException("the plot sensor is down");
+      if (Boolean.FALSE.equals(plot.getIsIrrigated())) {
+        throw new BadRequestException("Please start irrigate first!");
       }
       plot.setIsIrrigated(false);
-      plot.setLastIrrigationTime(LocalDateTime.now().toString());
+      plot.setLastIrrigationTime(
+          DateTimeFormatter.ofPattern(DATE_TIME_FORMAT).format(LocalDateTime.now()));
+      plot.getPlotTimerSlots().forEach(plotSlot -> plotSlot.setStatus(Status.DOWN));
 
       return plot;
     }).map(plotMapper::toDto);
-
   }
 }
