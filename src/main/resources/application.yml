@@ -18,6 +18,9 @@ spring:
       ddl-auto: none
     show-sql: true
     database-platform: org.hibernate.dialect.H2Dialect
+    properties:
+      hibernate:
+        enable_lazy_load_no_trans: true
 logging:
   level:
     ROOT: Error
@@ -25,4 +28,5 @@ logging:
     org.hibernate.SQL: DEBUG
     com.example.automaticirrigationsystem: DEBUG
 tries:
-  count: 15
+  count: 2
+

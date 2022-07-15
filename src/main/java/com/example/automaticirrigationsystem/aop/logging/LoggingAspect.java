@@ -44,8 +44,6 @@ public class LoggingAspect {
                 e.getMessage(),
                 e
             );
-
-
     }
 
     /**
@@ -58,15 +56,10 @@ public class LoggingAspect {
     @Around("execution(* *(..)) && @annotation(com.example.automaticirrigationsystem.aop.logging.Loggable)")
     public Object logAround(ProceedingJoinPoint joinPoint) throws Throwable {
         Logger log = logger(joinPoint);
-
         log.debug("Enter: {}() with argument[s] = {}", joinPoint.getSignature().getName(),
             Arrays.toString(joinPoint.getArgs()));
-
         Object result = joinPoint.proceed();
-
         log.debug("Exit: {}() with result = {}", joinPoint.getSignature().getName(), result);
-
         return result;
-
     }
 }
