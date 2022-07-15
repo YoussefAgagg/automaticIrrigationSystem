@@ -2,6 +2,7 @@ package com.example.automaticirrigationsystem.web.rest.advice;
 
 import com.example.automaticirrigationsystem.exception.BadRequestException;
 import com.example.automaticirrigationsystem.exception.NoMoreThanOneSensorAllowed;
+import com.example.automaticirrigationsystem.exception.PlotHasAlreadyStartedToBeIrrigated;
 import com.example.automaticirrigationsystem.exception.ResourceNotFoundException;
 import com.example.automaticirrigationsystem.exception.SensorCantBeReachedException;
 import org.springframework.http.HttpHeaders;
@@ -19,7 +20,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
 
   @ExceptionHandler(value = {IllegalArgumentException.class, IllegalStateException.class,
-      NoMoreThanOneSensorAllowed.class, SensorCantBeReachedException.class})
+      NoMoreThanOneSensorAllowed.class, SensorCantBeReachedException.class,
+      PlotHasAlreadyStartedToBeIrrigated.class})
   protected ResponseEntity<Object> handleConflict(RuntimeException ex, WebRequest request) {
 
     return handleExceptionInternal(ex, ex.getMessage(), new HttpHeaders(), HttpStatus.CONFLICT,

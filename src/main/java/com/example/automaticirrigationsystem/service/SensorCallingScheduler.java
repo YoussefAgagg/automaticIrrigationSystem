@@ -5,6 +5,7 @@ import com.example.automaticirrigationsystem.domain.Plot;
 import com.example.automaticirrigationsystem.domain.enumeration.Status;
 import com.example.automaticirrigationsystem.repository.PlotRepository;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,7 +18,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class SensorCallingScheduler {
 
-  private static final int timeSleep = 1000 * 30;
+  public static final String DATE_TIME_FORMAT = "dd-MM-yyyy HH:mm:ss";
+  private static final int TIME_SLEEP = 1000 * 30;
   private final PlotRepository plotRepository;
   @Value("${tries.count}")
   private int triesCount = 10;
@@ -25,46 +27,58 @@ public class SensorCallingScheduler {
   @Async
   @Loggable
   public void tryToConnectToSensor(Plot plot) {
-    log.debug("try to re connect to sensor  '{}'", plot);
+    log.debug("try to connect to sensor  '{}'", plot);
 
     while (triesCount > 0) {
-      log.debug("try to connect sensor {}", triesCount);
+      log.debug("try to connect sensor tries remain: {}", triesCount);
       triesCount--;
-      plot = plotRepository.findById(plot.getId()).get();
+      plot = plotRepository.findById(plot.getId()).stream().findFirst().orElse(new Plot());
 
-      log.debug("current plot  {}", plot);
+      log.debug("current plot status {}", plot);
 
       if (plot.getPlotSensor().getStatus() == Status.UP) {
-        log.debug("sensor is up now after {} tries", triesCount);
-        plot.setHasAlert(false);
-        plot.setSensorCallCount(0);
-        plot.setLastSensorCallTime("");
-        plot.setLastIrrigationTime(LocalDateTime.now().toString());
-        plot.setStartIrrigationTime(LocalDateTime.now().toString());
-        plot.setIsIrrigated(true);
+        if (plot.getSensorCallCount() != 0) {
+          log.debug("sensor is up now after {} tries", triesCount);
+        }
+        UpdatePlotIrrigationSuccess(plot);
         break;
       }
 
       plot.setSensorCallCount(plot.getSensorCallCount() + 1);
-      plot.setLastSensorCallTime(LocalDateTime.now().toString());
+      plot.setLastSensorCallTime(getFormattedNow());
       plotRepository.save(plot);
-      try {
-        Thread.sleep(timeSleep);
-      } catch (InterruptedException e) {
-        log.error("interrupted {}", e);
+      if (triesCount != 0) {
+        sleepTillNextTry();
       }
-
-
     }
 
     if (triesCount == 0) {
       plot.setHasAlert(true);
     }
-    // reset the count
-    plot.setSensorCallCount(0);
 
     plotRepository.save(plot);
-
   }
 
+  private void UpdatePlotIrrigationSuccess(Plot plot) {
+    plot.setHasAlert(false);
+    plot.setSensorCallCount(0);
+    plot.setLastSensorCallTime("");
+    plot.setLastIrrigationTime(getFormattedNow());
+    plot.setStartIrrigationTime(getFormattedNow());
+    plot.setIsIrrigated(true);
+    plot.getPlotTimerSlots().forEach(plotSlot -> plotSlot.setStatus(Status.UP));
+  }
+
+  private String getFormattedNow() {
+    return DateTimeFormatter.ofPattern(DATE_TIME_FORMAT).format(LocalDateTime.now());
+  }
+
+  private void sleepTillNextTry() {
+    try {
+      Thread.sleep(TIME_SLEEP);
+    } catch (InterruptedException e) {
+      log.error("interrupted '{}'", e.getMessage());
+      Thread.currentThread().interrupt();
+    }
+  }
 }

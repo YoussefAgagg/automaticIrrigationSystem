@@ -40,7 +40,7 @@ public class SensorResourceController {
   private final SensorService sensorService;
 
   /**
-   * {@code POST  /sensors} : Attach a new sensor to a plot.
+   * {@code POST  /sensors/{id}} : Attach a new sensor to a plot.
    *
    * @param sensorDTO the sensorDTO to create.
    * @param plotId    plot id to attach the sensor on.
