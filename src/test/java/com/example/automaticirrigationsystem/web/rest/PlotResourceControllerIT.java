@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
 import javax.persistence.EntityManager;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Integration tests for the {@link PlotResourceController} REST controller.
  */
+@Slf4j
 @SpringBootTest
 @AutoConfigureMockMvc
 class PlotResourceControllerIT {
@@ -52,6 +54,7 @@ class PlotResourceControllerIT {
     private static final String ENTITY_API_CONFIG_URL = "/api/plots/config/{id}";
     private static final Random random = new Random();
     private static final AtomicLong count = new AtomicLong(random.nextInt());
+
     @Autowired
     private PlotRepository plotRepository;
 
@@ -69,11 +72,11 @@ class PlotResourceControllerIT {
 
     @BeforeEach
     public void initTest() {
+        log.info("Integration Tests Started");
         plot = new Plot();
         plot.setPlotCode(DEFAULT_CODE);
         plot.setPlotLength(DEFAULT_LENGTH);
         plot.setPlotWidth(DEFAULT_WIDTH);
-
     }
 
     @Test
