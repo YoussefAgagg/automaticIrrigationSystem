@@ -46,12 +46,10 @@ public class PlotResourceController {
    * @param plotDTO the plotDTO to create.
    * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new
    * plotDTO, or with status {@code 400 (Bad Request)} if the plot has already an ID.
-   * @throws URISyntaxException if the Location URI syntax is incorrect.
+   * @throws URISyntaxException if the Location URI syntax is incorrect. create expected: plotCode,
+   *                            plotLength, plotWidth
    */
 
-  /**
-   * expected: plotCode, plotLength, plotWidth
-   */
   @PostMapping("/plots")
   @Loggable
   public ResponseEntity<PlotDTO> createPlot(@Valid @RequestBody PlotDTO plotDTO)
@@ -67,14 +65,12 @@ public class PlotResourceController {
   /**
    * {@code PUT  /plots/:id} : Updates an existing plot.
    *
-   * @param id      the id of the plotDTO to save.
-   * @param plotDTO the plotDTO to update.
+   * @param id            the id of the plotDTO to save.
+   * @param plotConfigDTO the plotConfigDTO to update.
    * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated
    * plotDTO, or with status {@code 400 (Bad Request)} if the plotDTO is not valid, or with status
-   * {@code 500 (Internal Server Error)} if the plotDTO couldn't be updated.
-   */
-  /**
-   * configure: crop, time slots count, water amount
+   * {@code 500 (Internal Server Error)} if the plotDTO couldn't be updated. configure expect: crop,
+   * time slots count, water amount
    */
   @PutMapping("/plots/config/{id}")
   @Loggable
@@ -96,10 +92,8 @@ public class PlotResourceController {
    * @param plotDTO the plotDTO to update.
    * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated
    * plotDTO, or with status {@code 400 (Bad Request)} if the plotDTO is not valid, or with status
-   * {@code 500 (Internal Server Error)} if the plotDTO couldn't be updated.
-   */
-  /**
-   * update: crop, time slots, water amount, plotCode, plotLength, plotWidth, sensor
+   * {@code 500 (Internal Server Error)} if the plotDTO couldn't be updated. update expect: crop,
+   * time slots, water amount, plotCode, plotLength, plotWidth, sensor
    */
 
   @PutMapping("/plots/{id}")

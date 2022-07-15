@@ -33,7 +33,7 @@ public class PlotService {
 
 
   /**
-   * Save a plot.
+   * update a plot.
    *
    * @param plotConfigDTO the plot to save.
    * @return the persisted plot.
@@ -66,15 +66,6 @@ public class PlotService {
     plotDTO.setId(null);
     Plot plot = plotMapper.toEntity(plotDTO);
     plot = setPlotToDefault(plot);
-    plot = plotRepository.save(plot);
-    return plotMapper.toDto(plot);
-  }
-
-
-  @Loggable
-  public PlotDTO update(PlotDTO plotDTO) {
-    log.debug("Request to update Plot : {}", plotDTO);
-    Plot plot = plotMapper.toEntity(plotDTO);
     plot = plotRepository.save(plot);
     return plotMapper.toDto(plot);
   }
@@ -142,7 +133,7 @@ public class PlotService {
     slots.clear();
     for (int i = 0; i < slotsCount; i++) {
       Slot slot = new Slot();
-      slot.setStatus(Status.UP);
+      slot.setStatus(Status.DOWN);
       slot.setPlot(plot);
       slots.add(slot);
     }
@@ -165,5 +156,10 @@ public class PlotService {
     return plotRepository.findAllByHasAlertIsTrue().stream()
         .map(plotMapper::toDto)
         .collect(Collectors.toList());
+  }
+
+  public int setPlotAlertOff(Long id) {
+
+    return plotRepository.fixPlotAlert(id);
   }
 }
